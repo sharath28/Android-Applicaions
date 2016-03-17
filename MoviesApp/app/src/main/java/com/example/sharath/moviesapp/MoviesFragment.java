@@ -25,14 +25,14 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Encapsulates fetching the forecast and displaying it as a {@link ListView} layout.
  */
 public class MoviesFragment extends Fragment {
-
-    private ArrayAdapter<String> movieadapter;
 
     public MoviesFragment() {
     }
@@ -63,6 +63,8 @@ public class MoviesFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
+    private ImageListAdapter movieadapter;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -73,13 +75,17 @@ public class MoviesFragment extends Fragment {
                 "http://image.tmdb.org/t/p/w185/kqjL17yufvn9OVLyXYpvtyrFfak.jpg",
                 "http://image.tmdb.org/t/p/w342/sM33SANp9z6rXW8Itn7NnG1GOEs.jpg",
                 "http://image.tmdb.org/t/p/w342/hE24GYddaxB9MVZl1CaiI86M3kp.jpg",
-                "http://image.tmdb.org/t/p/w342/nN4cEJMHJHbJBsp3vvvhtNWLGqg.jpg"
+                "http://image.tmdb.org/t/p/w342/nN4cEJMHJHbJBsp3vvvhtNWLGqg.jpg",
+                "http://image.tmdb.org/t/p/w185/kdXCb1Km4r7Om2G2uvYZPQJy4wG.jpg",
+                "http://image.tmdb.org/t/p/w185/y31QB9kn3XSudA15tV7UWQ9XLuW.jpg",
 
         };
+        Log.v(null,"Initial url string"+MoviesList);
+        List<String> finalmovieslist = new ArrayList<String>(Arrays.asList(MoviesList));
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         Context context = getActivity();
         GridView gridView = (GridView) rootView.findViewById(R.id.grid_view_movies);
-        movieadapter = new ImageListAdapter(context, MoviesList);
+        movieadapter = new ImageListAdapter(context, (ArrayList<String>) finalmovieslist);
         gridView.setAdapter(movieadapter);
         return rootView;
     }
@@ -138,6 +144,9 @@ public class MoviesFragment extends Fragment {
 
                 String line;
                 while ((line = reader.readLine()) != null) {
+                    // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
+                    // But it does make debugging a *lot* easier if you print out the completed
+                    // buffer for debugging.
                     buffer.append(line + "\n");
                 }
 
@@ -150,6 +159,8 @@ public class MoviesFragment extends Fragment {
                 Log.v(LOG_TAG, "Movies Json String" + moviesJsonStr);
             } catch (IOException e) {
                 Log.e(LOG_TAG, "Error ", e);
+                // If the code didn't successfully get the weather data, there's no point in attemping
+                // to parse it.
                 return null;
             } finally {
                 if (urlConnection != null) {
@@ -173,16 +184,27 @@ public class MoviesFragment extends Fragment {
         }
 
         protected void onPostExecute(String[] result) {
-            if (result != null) {
 //                Log.v(LOG_TAG, "POST EXECUTE" + result.toString());
 //                movieadapter.addAll(Arrays.asList(result));
 //                }
+//                for (String movie : result) {
+//                    if (movie!=null) {
+//                        Log.v(LOG_TAG, "POST EXECUTE IMAGE URLS" + movie);
+//                        movieadapter.clear();
+//                        movieadapter.add(movie);
+//                    }
+
+            if (result != null) {
+//                ArrayList<String> finalresult = new ArrayList<String>(Arrays.asList(result));
+                movieadapter.clear();
+                Log.v(LOG_TAG,"Result url string"+result);
                 for (String movie : result) {
-                    if (movie!=null) {
+                    if (movie != null) {
                         Log.v(LOG_TAG, "POST EXECUTE IMAGE URLS" + movie);
-                        movieadapter.clear();
                         movieadapter.add(movie);
                     }
+                    movieadapter.notifyDataSetChanged();
+                    //   movieadapter.addAll(finalresult);
                 }
             }
         }
