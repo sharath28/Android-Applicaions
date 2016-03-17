@@ -1,11 +1,9 @@
 package com.example.sharath.moviesapp;
 
 import android.content.Context;
-import android.media.Image;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -14,12 +12,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.GridView;
-import android.widget.ImageView;
 import android.widget.ListView;
-
-import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -31,17 +25,18 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * Encapsulates fetching the forecast and displaying it as a {@link ListView} layout.
  */
 public class MoviesFragment extends Fragment {
 
+    private ArrayAdapter<String> movieadapter;
+
     public MoviesFragment() {
     }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,15 +55,14 @@ public class MoviesFragment extends Fragment {
             FetchMoviesTask moviesTask = new FetchMoviesTask();
             moviesTask.execute();
             return true;
-        }
-        else if(id == R.id.action_sort_popular)
-        {
+        } else if (id == R.id.action_sort_popular) {
             FetchMoviesTask moviesTask = new FetchMoviesTask();
             moviesTask.execute();
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -85,15 +79,37 @@ public class MoviesFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         Context context = getActivity();
         GridView gridView = (GridView) rootView.findViewById(R.id.grid_view_movies);
-        gridView.setAdapter(new ImageListAdapter(context,MoviesList));
+        movieadapter = new ImageListAdapter(context, MoviesList);
+        gridView.setAdapter(movieadapter);
         return rootView;
     }
-    public class FetchMoviesTask extends AsyncTask<Void, Void, Void> {
 
+    public class FetchMoviesTask extends AsyncTask<Void, Void, String[]> {
         private final String LOG_TAG = FetchMoviesTask.class.getSimpleName();
 
+        private String[] getMoviesDataFromJson(String MoviesJsonStr)
+                throws JSONException {
+
+
+            final String OWM_RESULT = "results";
+            JSONObject MoviesJson = new JSONObject(MoviesJsonStr);
+            JSONArray moviesArray = MoviesJson.getJSONArray(OWM_RESULT);
+
+            String[] resultStrs = new String[35];
+            for (int i = 0; i < moviesArray.length(); i++) {
+                String basic_url = " http://image.tmdb.org/t/p/w185";
+                String image_url;
+                JSONObject singlemovie = moviesArray.getJSONObject(i);
+                image_url = singlemovie.getString("poster_path");
+                resultStrs[i] = basic_url + image_url;
+                Log.v(LOG_TAG, "Image urls:" + resultStrs[i]);
+            }
+            Log.v(LOG_TAG, "Final Image urls:" + resultStrs);
+            return resultStrs;
+        }
+
         @Override
-        protected Void doInBackground(Void... params) {
+        protected String[] doInBackground(Void... params) {
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
 
@@ -115,7 +131,7 @@ public class MoviesFragment extends Fragment {
                 StringBuffer buffer = new StringBuffer();
                 if (inputStream == null) {
                     // Nothing to do.
-                    Log.v(LOG_TAG,"Input stream null");
+                    Log.v(LOG_TAG, "Input stream null");
                     return null;
                 }
                 reader = new BufferedReader(new InputStreamReader(inputStream));
@@ -130,12 +146,11 @@ public class MoviesFragment extends Fragment {
 
                 if (buffer.length() == 0) {
                     // Stream was empty.  No point in parsing.
-                    Log.v(LOG_TAG,"Input Length zero");
+                    Log.v(LOG_TAG, "Input Length zero");
                     return null;
                 }
                 moviesJsonStr = buffer.toString();
-
-                Log.v(LOG_TAG,"Movies Json String"+ moviesJsonStr);
+                Log.v(LOG_TAG, "Movies Json String" + moviesJsonStr);
             } catch (IOException e) {
                 Log.e(LOG_TAG, "Error ", e);
                 // If the code didn't successfully get the weather data, there's no point in attemping
@@ -153,8 +168,28 @@ public class MoviesFragment extends Fragment {
                     }
                 }
             }
+            try {
+                return getMoviesDataFromJson(moviesJsonStr);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
             return null;
+        }
+
+        protected void onPostExecute(String[] result) {
+            if (result != null) {
+//                Log.v(LOG_TAG, "POST EXECUTE" + result.toString());
+//                movieadapter.addAll(Arrays.asList(result));
+//                }
+                for (String movie : result) {
+                    if (movie!=null) {
+                        Log.v(LOG_TAG, "POST EXECUTE IMAGE URLS" + movie);
+                        movieadapter.clear();
+                        movieadapter.add(movie);
+                    }
+                }
+            }
         }
     }
 }
-
