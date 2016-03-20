@@ -8,28 +8,31 @@ import android.os.Parcelable;
  */
 public class Movie implements Parcelable {
     String id;
-    String image;
+    String poster_image;
     String title;
     String release_date;
-    float rating;
+    double rating;
     String overview;
+    String background_image;
 
-    public Movie(String id,String image,String title,String release_date,float rating,String overview) {
+    public Movie(String id,String poster_image,String title,String release_date,double rating,String overview,String background_image) {
         this.id = id;
-        this.image = image;
+        this.poster_image = poster_image;
         this.title = title;
         this.release_date = release_date;
         this.rating = rating;
         this.overview = overview;
+        this.background_image =background_image;
     }
 
     protected Movie(Parcel in) {
         id = in.readString();
-        image = in.readString();
+        poster_image = in.readString();
         title = in.readString();
         release_date = in.readString();
-        rating = in.readFloat();
+        rating = in.readDouble();
         overview = in.readString();
+        background_image = in.readString();
     }
 
     public static final Creator<Movie> CREATOR = new Creator<Movie>() {
@@ -52,10 +55,11 @@ public class Movie implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(id);
-        dest.writeString(image);
+        dest.writeString(poster_image);
         dest.writeString(title);
         dest.writeString(release_date);
-        dest.writeFloat(rating);
+        dest.writeDouble(rating);
         dest.writeString(overview);
+        dest.writeString(background_image);
     }
 }

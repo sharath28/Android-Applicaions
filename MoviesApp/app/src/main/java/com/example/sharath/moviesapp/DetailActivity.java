@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toolbar;
 
 import com.example.sharath.moviesapp.R;
 import com.squareup.picasso.Picasso;
@@ -38,20 +39,15 @@ public class DetailActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_detail, menu);
+        getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_sort_popular) {
             return true;
         }
 
@@ -81,16 +77,21 @@ public class DetailActivity extends AppCompatActivity {
                 ((TextView) rootView.findViewById(R.id.movie_title))
                         .setText(movie.title);
                 ImageView iconView = (ImageView) rootView.findViewById(R.id.movie_poster);
-                Picasso.with(getContext()).load(movie.image).into(iconView);
-                ((RatingBar) rootView.findViewById(R.id.movie_rating)).setRating(movie.rating);
+                Picasso.with(getContext()).load(movie.poster_image).into(iconView);
+//                ImageView iconView1 = (ImageView) rootView.findViewById(R.id.movie_background);
+//                Picasso.with(getContext()).load(movie.background_image).into(iconView1);
+                ((TextView) rootView.findViewById(R.id.movie_rating_text))
+                        .setText("Rating:" + (float) movie.rating + "/ 10");
+                ((RatingBar) rootView.findViewById(R.id.movie_rating)).setRating((float) movie.rating);
+                ((TextView) rootView.findViewById(R.id.movie_overview_text))
+                        .setText("Over View");
+                ((TextView) rootView.findViewById(R.id.movie_overview))
+                       .setText(movie.overview);
+                ((TextView) rootView.findViewById(R.id.movie_release_date_text))
+                        .setText("Release Date");
+                ((TextView) rootView.findViewById(R.id.movie_release_date))
+                        .setText(movie.release_date);
             }
-//            Intent intent = getActivity().getIntent();
-//            if (intent != null && intent.hasExtra(Intent.EXTRA_TEXT)) {
-//                String forecastStr = intent.getStringExtra(Intent.EXTRA_TEXT);
-//                ((TextView) rootView.findViewById(R.id.detail_text))
-//                        .setText(forecastStr);
-//            }
-
             return rootView;
         }
     }

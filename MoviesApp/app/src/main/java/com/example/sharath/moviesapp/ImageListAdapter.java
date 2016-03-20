@@ -24,8 +24,6 @@ public class ImageListAdapter extends ArrayAdapter<Movie> {
         super(context, R.layout.grid_image,movies);
 
         this.context = context;
-//        this.imageUrls = imageUrls;
-
         inflater = LayoutInflater.from(context);
     }
 
@@ -38,9 +36,7 @@ public class ImageListAdapter extends ArrayAdapter<Movie> {
 
         Picasso
                 .with(context)
-//                .load(imageUrls.get(position))
-//                .fit() // will explain later
-                .load(movie.image)
+                .load(movie.poster_image)
                 .into((ImageView) convertView);
 
         return convertView;

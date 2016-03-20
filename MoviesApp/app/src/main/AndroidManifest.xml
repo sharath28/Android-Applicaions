@@ -18,10 +18,12 @@
             </intent-filter>
         </activity>
         <activity
+            android:allowBackup="true"
+            android:icon="@mipmap/ic_launcher"
             android:name=".DetailActivity"
-            android:label="@string/title_activity_detail"
+            android:label="Movies Detail"
             android:parentActivityName=".MainActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="MainActivity" />

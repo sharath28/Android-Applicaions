@@ -33,19 +33,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-
-/**
- * Encapsulates fetching the forecast and displaying it as a {@link ListView} layout.
- */
 public class MoviesFragment extends Fragment {
     static final String SORT_POPULAR = "popular";
     static final String SORT_RATING = "top_rated";
-    public interface Callback {
-        /**
-         * DetailFragmentCallback for when an item has been selected.
-         */
-        public void onItemSelected(Movie movie);
-    }
+    static String sort_flag = "rating";
 
     public MoviesFragment() {
     }
@@ -65,13 +56,32 @@ public class MoviesFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_sort_rating) {
-            FetchMoviesTask moviesTask = new FetchMoviesTask();
-            moviesTask.execute(SORT_RATING);
-            return true;
-        } else if (id == R.id.action_sort_popular) {
-            FetchMoviesTask moviesTask = new FetchMoviesTask();
-            moviesTask.execute(SORT_POPULAR);
-            return true;
+            if (sort_flag.equals("rating"))
+            {
+                Toast.makeText(getActivity(), "Sorted as per Rating", Toast.LENGTH_SHORT).show();
+                return true;
+            }
+            else
+            {
+                FetchMoviesTask moviesTask = new FetchMoviesTask();
+                moviesTask.execute(SORT_RATING);
+                sort_flag="rating";
+                return true;
+            }
+        }
+        else if (id == R.id.action_sort_popular) {
+            if (sort_flag.equals("popular"))
+            {
+                Toast.makeText(getActivity(), "Sorted as per Popularity", Toast.LENGTH_SHORT).show();
+                return true;
+            }
+            else
+            {
+                FetchMoviesTask moviesTask = new FetchMoviesTask();
+                moviesTask.execute(SORT_POPULAR);
+                sort_flag="popular";
+                return true;
+            }
         }
         return super.onOptionsItemSelected(item);
     }
@@ -81,60 +91,33 @@ public class MoviesFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        final String[] MoviesList = {
-                "http://image.tmdb.org/t/p/w185/nBNZadXqJSdt05SHLqgT0HuC5Gm.jpg",
-                "http://image.tmdb.org/t/p/w185/811DjJTon9gD6hZ8nCjSitaIXFQ.jpg",
-                "http://image.tmdb.org/t/p/w185/inVq3FRqcYIRl2la8iZikYYxFNR.jpg",
-                "http://image.tmdb.org/t/p/w185/kqjL17yufvn9OVLyXYpvtyrFfak.jpg",
-                "http://image.tmdb.org/t/p/w342/sM33SANp9z6rXW8Itn7NnG1GOEs.jpg",
-                "http://image.tmdb.org/t/p/w342/hE24GYddaxB9MVZl1CaiI86M3kp.jpg",
-                "http://image.tmdb.org/t/p/w342/nN4cEJMHJHbJBsp3vvvhtNWLGqg.jpg",
-                "http://image.tmdb.org/t/p/w185/kdXCb1Km4r7Om2G2uvYZPQJy4wG.jpg",
-                "http://image.tmdb.org/t/p/w185/y31QB9kn3XSudA15tV7UWQ9XLuW.jpg",
 
-        };
-
-//        ArrayList<Movie[]> mlist = new ArrayList<Movie>(Arrays.<Movie[]>asList(mlist));
-//        Movie[] mlist = {
-//                new Movie("244786","http://image.tmdb.org/t/p/w185/lIv1QinFqz4dlp5U4lQ6HaiskOZ.jpg","Whiplash","2014-10-10","8.36","Under the direction of a ruthless instructor, a talented young drummer begins to pursue perfection at any cost, even his humanity.")
-//        };
-//        Log.v(null,"Initial url string"+MoviesList);
-//        List<String> finalmovieslist = new ArrayList<String>(Arrays.asList(MoviesList));
-//        View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-//        Context context = getActivity();
-//        GridView gridView = (GridView) rootView.findViewById(R.id.grid_view_movies);
-//        movieadapter = new ImageListAdapter(context, (ArrayList<String>) finalmovieslist);
-//        gridView.setAdapter(movieadapter);
-//
-//        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//           public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                String forecast = (String) movieadapter.getItem(position);
-//               Toast.makeText(getActivity(), "Toast message"+forecast, Toast.LENGTH_SHORT).show();
-//                Intent intent = new Intent(getActivity(), DetailActivity.class)
-//                        .putExtra(Intent.EXTRA_TEXT, forecast);
-//                startActivity(intent);
-//            }
-//
-//        });
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
         Context context = getActivity();
         movieadapter = new ImageListAdapter(context, new ArrayList<Movie>());
 
-        // Get a reference to the GridView, and attach this adapter to it.
         GridView gridView = (GridView) rootView.findViewById(R.id.grid_view_movies);
         gridView.setAdapter(movieadapter);
+        if(sort_flag.equals("rating")) {
+            FetchMoviesTask moviesTask = new FetchMoviesTask();
+            moviesTask.execute(SORT_RATING);
+            sort_flag = "rating";
+        }
+        else
+        {
+            FetchMoviesTask moviesTask = new FetchMoviesTask();
+            moviesTask.execute(SORT_POPULAR);
+            sort_flag = "popular";
+        }
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Movie movie = movieadapter.getItem(position);
-                Toast.makeText(getActivity(), "Movie title:" + movie.title+" Movie Overview: "+movie.overview, Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity(), "Movie title:" + movie.title+"\nMovie Overview: "+movie.overview, Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(getActivity(), DetailActivity.class)
                         .putExtra("key", movie);
                startActivity(intent);
-//                ((Callback) getActivity())
-//                        .onItemSelected(movie);
             }
 
        });
@@ -161,10 +144,12 @@ public class MoviesFragment extends Fragment {
                 String id = singlemovie.getString("id");
                 String title = singlemovie.getString("original_title");
                 String release_date = singlemovie.getString("release_date");
-                float rating = (float) singlemovie.get("vote_average");
+                double rating = singlemovie.getDouble("vote_average");
                 String overview = singlemovie.getString("overview");
+                String background_image_url = singlemovie.getString("backdrop_path");
+                String final_background_image_url = basic_url + background_image_url;
                 String final_image_url = basic_url+image_url;
-                resultStrs[i] = new Movie(id,final_image_url,title,release_date,rating,overview);
+                resultStrs[i] = new Movie(id,final_image_url,title,release_date,rating,overview,final_background_image_url);
                 Log.v(LOG_TAG, "Image urls:" + resultStrs[i]);
             }
             Log.v(LOG_TAG, "Final Image urls:" + resultStrs);
@@ -176,14 +161,14 @@ public class MoviesFragment extends Fragment {
         protected Movie[] doInBackground(String... params) {
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
-
+            String api_key = "08eff0c57313416b04009b2ccf767b8d";
             // Will contain the raw JSON response as a string.
             String moviesJsonStr = null;
             String baseUrl = null;
             try {
                 // Construct the URL for the Moviesdb query
                 if("popular".equals(params[0])) {
-                    baseUrl = "http://api.themoviedb.org/3/movie/popular?api_key=08eff0c57313416b04009b2ccf767b8d";
+                    baseUrl = "http://api.themoviedb.org/3/movie/popular?api_key="+api_key;
                 }
                 else
                 {
@@ -208,14 +193,10 @@ public class MoviesFragment extends Fragment {
 
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
-                    // But it does make debugging a *lot* easier if you print out the completed
-                    // buffer for debugging.
                     buffer.append(line + "\n");
                 }
 
                 if (buffer.length() == 0) {
-                    // Stream was empty.  No point in parsing.
                     Log.v(LOG_TAG, "Input Length zero");
                     return null;
                 }
@@ -223,8 +204,6 @@ public class MoviesFragment extends Fragment {
                 Log.v(LOG_TAG, "Movies Json String" + moviesJsonStr);
             } catch (IOException e) {
                 Log.e(LOG_TAG, "Error ", e);
-                // If the code didn't successfully get the weather data, there's no point in attemping
-                // to parse it.
                 return null;
             } finally {
                 if (urlConnection != null) {
@@ -249,18 +228,9 @@ public class MoviesFragment extends Fragment {
 
         @Override
         protected void onPostExecute(Movie[] result) {
-//                Log.v(LOG_TAG, "POST EXECUTE" + result.toString());
-//                movieadapter.addAll(Arrays.asList(result));
-//                }
-//                for (String movie : result) {
-//                    if (movie!=null) {
-//                        Log.v(LOG_TAG, "POST EXECUTE IMAGE URLS" + movie);
-//                        movieadapter.clear();
-//                        movieadapter.add(movie);
-//                    }
+
             if (result != null) {
                 movieadapter.clear();
-//                Log.v(LOG_TAG,"Result url string"+result);
                 for (Movie movie : result) {
                     if (movie != null) {
                         Log.v(LOG_TAG, "POST EXECUTE IMAGE URLS" + movie);
