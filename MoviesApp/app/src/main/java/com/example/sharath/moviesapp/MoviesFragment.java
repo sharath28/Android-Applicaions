@@ -161,7 +161,7 @@ public class MoviesFragment extends Fragment {
         protected Movie[] doInBackground(String... params) {
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
-            String api_key = "08eff0c57313416b04009b2ccf767b8d";
+            String api_key = null;
             // Will contain the raw JSON response as a string.
             String moviesJsonStr = null;
             String baseUrl = null;
@@ -172,7 +172,7 @@ public class MoviesFragment extends Fragment {
                 }
                 else
                 {
-                    baseUrl = "http://api.themoviedb.org/3/movie/top_rated?api_key=08eff0c57313416b04009b2ccf767b8d";
+                    baseUrl = "http://api.themoviedb.org/3/movie/top_rated?api_key="+api_key;
                 }
                 URL url = new URL(baseUrl);
 
