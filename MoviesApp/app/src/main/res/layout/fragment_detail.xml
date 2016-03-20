@@ -1,0 +1,24 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="100dp"
+    android:id="@+id/fragment_detail_container">
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/movie_title"
+        style="@style/Base.TextAppearance.AppCompat.Title" />
+    <ImageView
+        android:paddingLeft="0dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/movie_title"
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter"
+        android:id="@+id/movie_poster"/>
+    <RatingBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/movie_poster"
+        android:id="@+id/movie_rating"/>
+
+</RelativeLayout>
